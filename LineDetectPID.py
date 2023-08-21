@@ -1,7 +1,7 @@
 # ROSMASTER params
 {
     "Hmin": {
-        "default": 5,
+        "default": 10,
         "min": 0,
         "max": 180,
         "description": "Hmin in HSV"
