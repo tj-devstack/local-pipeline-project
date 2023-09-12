@@ -170,5 +170,3 @@ export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/home/jetson/software/ORB_SLAM2/Exam
 #export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/home/jetson/software/ORB_SLAM2/Example/ROS/ORB_SLAM2
 #export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:/home/jetson/software/ORB_SLAM2/Examples/ROS
 
-# execute to git pull
-python ~/yahboomcar_ws/src/yahboomcar_linefollw/cfg/pull_config.py
