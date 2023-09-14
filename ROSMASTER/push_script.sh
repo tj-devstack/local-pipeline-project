@@ -10,7 +10,7 @@ root@node1:~/data# cat push_script.sh
 #!/bin/sh
 
 # Set GitHub Personal Access Token
-GITHUB_TOKEN="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"
+GITHUB_TOKEN=""
 
 # Set Git user email and name
 git config --global user.email "tj-devstack@devstack.co.kr"
