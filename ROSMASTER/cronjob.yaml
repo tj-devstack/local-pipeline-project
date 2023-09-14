@@ -1,0 +1,122 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-volume
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/shared-data"  # 워커 노드의 데이터 저장 경로
+  nodeAffinity:  # Node Selector를 추가합니다.
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nodeType
+              operator: In
+              values:
+                - edge  # 워커 노드에 할당합니다.
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-volume-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: data-volume  # PV와 연결
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: script-volume
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/shared-data"  # 워커 노드의 데이터 저장 경로
+  nodeAffinity:  # Node Selector를 추가합니다.
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: nodeType
+              operator: In
+              values:
+                - edge  # 워커 노드에 할당합니다.
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: script-volume-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: data-volume  # PV와 연결
+
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: github-sync
+  namespace: ROSMASTER
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:  # Node Selector를 추가합니다.
+            key: edge  # 원하는 Node 레이블과 값으로 설정합니다.
+          containers:
+            - name: push-container
+              image: alpine/git
+              command:
+                - /bin/sh
+                - -c
+                - /mnt/shared-data/push_script.sh
+              volumeMounts:
+                - name: data-volume
+                  mountPath: /mnt/shared-data
+                - name: script-volume
+                  mountPath: /mnt/shared-data/push_script.sh
+                  subPath: push_script.sh
+            - name: pull-container
+              image: alpine/git
+              command:
+                - /bin/sh
+                - -c
+                - /mnt/shared-data/pull_script.sh  # 실행할 pull 스크립트 경로
+              volumeMounts:
+                - name: data-volume
+                  mountPath: /mnt/shared-data
+                - name: script-volume
+                  mountPath: /mnt/shared-data/pull_script.sh
+                  subPath: pull_script.sh
+          restartPolicy: OnFailure
+          volumes:
+            - name: data-volume
+              persistentVolumeClaim:
+                claimName: data-volume-claim
+            - name: script-volume
+              persistentVolumeClaim:
+                claimName: script-volume-claim
