@@ -1,3 +1,5 @@
+# 경로 /home/jetson/yahboomcar_ws/src/yahboomcar_linefollw/cfg
+
 #!/usr/bin/env python
 PACKAGE = "yahboomcar_linefollw"
 from dynamic_reconfigure.parameter_generator_catkin import *
